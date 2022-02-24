@@ -4,15 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using API.Data;
 using API.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
-    [ApiController]
-    // api/users
-    [Route("api/[controller]")]
-    public class UsersController : ControllerBase
+    public class UsersController : BaseApiController
     {
         private readonly DataContext _context;
         public UsersController(DataContext context)
@@ -21,30 +19,25 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AppUser>?>?> GetUsers() 
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers() 
         {
-            if (_context.Users != null) 
-            {
-                return await _context.Users.ToListAsync();
-            }
-            else
-            {
-                return null;
-            }
+            if (_context.Users == null) return BadRequest("No users available");
+            return await _context.Users.ToListAsync();
         }
         
-        // api/users/3
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<AppUser?>?> GetUser(int id) 
         {
-            if (_context.Users != null) 
+            if (_context.Users == null) 
             {
-                return await _context.Users.FindAsync(id);
-            }
-            else
-            {
+                BadRequest("No users available");
+                
                 return null;
             }
+
+            return await _context.Users.FindAsync(id);
             
         }
     }
