@@ -26,6 +26,7 @@ namespace API.Data.Helpers
                     options => options.MapFrom(source => source.DateOfBirth.CalculateAge())
                 );
             CreateMap<Photo, PhotoDto>();
+            CreateMap<MemberUpdateDto, AppUser>();
         }
     }
 }
