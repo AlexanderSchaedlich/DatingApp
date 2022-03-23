@@ -28,9 +28,9 @@ namespace API.Controllers
 
         public async Task<ActionResult<UserDto>?> Register(RegisterDto registerDto) 
         {
-            if (registerDto.Username == null) return null;
-            if (registerDto.Password == null) return null;
-            if (await UserExists(registerDto.Username) == null) return null; 
+            if (registerDto.Username == null) return NotFound();
+            if (registerDto.Password == null) return NotFound();
+            if (await UserExists(registerDto.Username) == null) return NotFound(); 
             if (await UserExists(registerDto.Username) == true) return BadRequest("Username is taken"); 
             
             using var hmac = new HMACSHA512();
@@ -55,15 +55,17 @@ namespace API.Controllers
 
         public async Task<ActionResult<UserDto>?> Login(LoginDto loginDto)
         {
-            if (_context.Users == null) return null;
+            if (_context.Users == null) return NotFound();
 
-            var user = await _context.Users.SingleOrDefaultAsync(user => user.UserName == loginDto.Username);
+            var user = await _context.Users
+                .Include(user => user.Photos)
+                .SingleOrDefaultAsync(user => user.UserName == loginDto.Username);
             
             if (user == null) return Unauthorized("Invalid username");
 
-            if (user.PasswordHash == null) return Problem(); // should be changed
-            if (user.PasswordSalt == null) return Problem(); // should be changed
-            if (loginDto.Password == null) return Problem(); // should be changed
+            if (user.PasswordHash == null) return NotFound();
+            if (user.PasswordSalt == null) return NotFound();
+            if (loginDto.Password == null) return NotFound();
             
             using var hmac = new HMACSHA512(user.PasswordSalt);
             var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDto.Password));
@@ -76,7 +78,8 @@ namespace API.Controllers
             return new UserDto
             {
                 Username = user.UserName,
-                Token = _tokenService.CreateToken(user)
+                Token = _tokenService.CreateToken(user),
+                PhotoUrl = user.Photos?.First(photo => photo.IsMain)?.Url
             };
         }
 
@@ -84,7 +87,7 @@ namespace API.Controllers
         {
             if (_context.Users == null)
             {
-                BadRequest("No users available");
+                NotFound();
                 return null;
             }
 

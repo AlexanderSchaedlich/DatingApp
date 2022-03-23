@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using API.Data;
 using API.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -27,20 +23,16 @@ namespace API.Controllers
         [HttpGet("not-found")]
         public ActionResult<AppUser> GetNotFound()
         {
-            var thing = _context.Users?.Find(-1);
-            if (thing == null) return NotFound();
+            var notExistingUser = _context.Users?.Find(-1);
+            if (notExistingUser == null) return NotFound();
 
-            return Ok(thing);
+            return Ok(notExistingUser);
         }
 
         [HttpGet("server-error")]
         public ActionResult<Type>? GetServerError()
         {
             throw new Exception("Sample exception.");
-            // var thing = _context.Users?.Find(-1);
-            // var thingToReturn = thing?.ToString();
-
-            // return thingToReturn.GetType();
         }
 
         [HttpGet("bad-request")]

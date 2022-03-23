@@ -1,3 +1,9 @@
 .dropdown-toggle, .dropdowm-item {
     cursor: pointer;
 }
+
+.dropdown img {
+    max-height: 50px;
+    border: white solid 2px;
+    display: inline;
+}
