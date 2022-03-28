@@ -19,7 +19,7 @@
         </ul>
         <div *ngIf="(accountService.currentUser$ | async) as user" class="dropdown d-flex align-items-center" dropdown>
           <div class="p-2">
-            <img src="{{ user.photoUrl }}" alt="{{ user.username }}">
+            <img src="{{ user.photoUrl || './assets/user.png' }}" alt="{{ user.username }}">
           </div>
           <div class="dropdown-toggle text-light" dropdownToggle>Welcome {{user.username | titlecase}}</div>
           <div class="dropdown-menu mt-3" *dropdownMenu>
